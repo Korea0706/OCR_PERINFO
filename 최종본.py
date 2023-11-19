@@ -2,7 +2,7 @@ import re
 from PIL import Image, ImageDraw
 import pytesseract
 
-image_path = r"C:\Users\SUN\Documents\OCR PHOTOS\메모장15.PNG"
+image_path = r"C:\Users\SUN\Documents\OCR PHOTOS\메모장16.PNG" #이미지 입력
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 input_value = pytesseract.image_to_string(Image.open(image_path), lang="kor")
 input_value = input_value.replace(" ", "")
@@ -10,6 +10,7 @@ input_value = input_value.replace("\n", "")
 image = Image.open(image_path)
 output_image_path = r"C:\Users\SUN\Documents\OCR PHOTOS\mosaic.PNG"
 output_image = image.copy()
+
 
 names = ['민준', '서준', '도윤', '예준', '시우', '하준', '지호', '주원', '지후', '준우', '준서', '도현', '건우', '현우', '우진', '지훈', '선우', '유준', '서진', '연우', '은우', '민재', '현준', '시윤', '정우', '이준', '승우', '윤우', '지환', '지우', '승현', '유찬', '준혁', '수호', '승민', '시후', '진우', '민성', '수현', '준영', '지원', '이안', '재윤', '시현', '태윤', '한결', '지안', '동현', '윤호', '시원', '은찬', '시온', '민우', '재원', '민규', '지한', '서우', '은호', '재민', '민찬', '우주', '우빈', '하율', '준호', '지율', '성민', '하진', '승준', '성현', '재현', '현서', '민호', '태민', '예성', '지성', '지민', '윤재', '태현', '민혁', '하람', '규민', '성준', '하민', '로운', '윤성', '정민', '태양', '이현', '은성', '예찬', '준수', '도훈', '준희', '민석', '다온', '주안', '주호', '서윤', '서연', '지우', '서현', '하윤', '하은', '민서', '지유', '윤서', '채원', '수아', '지민', '지아', '지윤', '다은', '은서', '예은', '지안', '소율', '서아', '예린', '수빈', '하린', '소윤', '예원', '지원', '유나', '시은', '채은', '유진', '윤아', '예나', '가은', '시아', '아린', '예서', '서영', '연우', '예진', '민지', '주아', '하율', '수민', '다인', '수연', '유주', '아윤', '연서', '서우', '아인', '시연', '서은', '다연', '채윤', '나은', '서율', '하연', '나윤', '지율', '현서', '서하', '서진', '유빈', '다현', '채아', '예지', '수현', '소은', '사랑', '나연', '지은', '시현', '예빈', '민주', '은채', '세아', '윤지', '소연', '지현', '다윤', '주하', '지수', '승아', '소민', '혜원', '채린', '다온', '하영', '민아', '나현', '서희', '세은', '아영', '도연', '규리', '이서', '가윤', '유하', '아현', '연아']
 THREEDATA = ["경기도", "기장군","강남구","강동구","강북구","권선구","강서구","영통구","달성군","관악구","장안구","군위군","광진구","팔달구","수원시","구로구","성남시","금천구","노원구",
@@ -134,26 +135,43 @@ def ch(s):
         if w == SEVENDATA:
             print(f"{w} 주소임")
             mosaic(s[j], s[j + 6], 'green')
+while True:
+    qusn = input('개인정보가 발견되면 가릴까요?(Y/N) ')
+    if qusn == 'Y':
+        while True:
+            ans = input('가리고 싶은 문자열이 있나요? (Y/N) ')
+            if ans == 'Y':
+                input_value3 = input("가리고 싶은 특정 문자 : ")
+                if input_value3 in input_value:
+                    print(f"{input_value3} : 발견됨")
+                    mosaic(input_value3[0], input_value3[len(input_value3) - 1], 'teal')
+                    break
+            elif ans == 'N':
+                pass
+                break
+            else:
+                print("Y 또는 N을 입력해주세요.")
+        input_value = re.sub(r"[a-zA-Z]", "", input_value)
+        input_value2 = input_value
+        input_value = re.sub(r"[ㄱ-ㅣ가-힣]", "", input_value)
+        input_value2 = re.sub(r"[^\uAC00-\uD7A30-9a-zA-Z\s]", "", input_value2)
 
-# if input_value3 in input_value:
-#     mosaic(input_value3[0], input_value3[len(input_value3)-1], 'blue')
+        ch(input_value2)
+        chnm(input_value2)
 
-input_value = re.sub(r"[a-zA-Z]", "", input_value)
-input_value2 = input_value
-input_value = re.sub(r"[ㄱ-ㅣ가-힣]", "", input_value)
-input_value2 = re.sub(r"[^\uAC00-\uD7A30-9a-zA-Z\s]", "", input_value2)
+        # Check for personal information in input
+        for i in range(len(input_value)-13):
+            # Check for Korean resident registration numbers
+            if validate_resident_number(i):
+                print(input_value[i:i + 14], ": 주민등록번호임")
+                mosaic(input_value[i:i+14], input_value[i:i + 14], 'red')
 
-ch(input_value2)
-chnm(input_value2)
+        # 이미지 뷰어로 결과 확인
+        output_image.show()
+        break
 
-# Check for personal information in input
-for i in range(len(input_value)-13):
-    # Check for Korean resident registration numbers
-    if validate_resident_number(i):
-        print(input_value[i:i + 14], ": 주민등록번호임")
-        mosaic(input_value[i:i+14], input_value[i:i + 14], 'red')
-
-
-
-# 이미지 뷰어로 결과 확인
-output_image.show()
+    elif qusn == 'N':
+        pass
+        break
+    else:
+        print("Y 또는 N을 입력하세요.")
